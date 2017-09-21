@@ -1,20 +1,24 @@
+sudo: false
 language: python
-
-python:
-  - "2.6"
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5-dev"
-  - "pypy"
-  - "pypy3.3-5.2-alpha1"
-  - "nightly"
+matrix:
+  include:
+  - python: 2.7
+    env: TOX_ENV=py27
+  - python: 3.3
+    env: TOX_ENV=py33
+  - python: 3.4
+    env: TOX_ENV=py34
+  - python: 3.5
+    env: TOX_ENV=py35
+  - python: 3.6
+    env: TOX_ENV=py36
+  - python: pypy
+    env: TOX_ENV=pypy
+  - python: pypy3
+    env: TOX_ENV=pypy3
 
 install:
-  - pip install -U pip
-  - pip install -U wheel setuptools
-  - pip install .[test]
-
+- pip install tox
 script:
-  - python -m testtools.run discover 
-  - rst2html.py --strict README.rst README.html
+- tox -e $TOX_ENV
+
