@@ -143,7 +143,7 @@ For instance::
         def clean(self, resource):
             shutil.rmtree(resource)
 
-        def make(self):
+        def make(self, dependency_resources):
             return tempfile.mkdtemp()
 
         def isDirty(self, resource):
@@ -169,9 +169,11 @@ returns None, the framework does *not* consider this an error: be sure to always
 return a valid resource, or raise an error. Error handling hasn't been heavily
 exercised, but any bugs in this area will be promptly dealt with.
 
-A sample TestResourceManager can be found in the doc/ folder.
+A sample_ TestResourceManager can be found in the doc/ folder.
 
 See pydoc testresources.TestResourceManager for details.
+
+.. _sample: doc/example.py
 
 testresources.GenericResource
 -----------------------------
