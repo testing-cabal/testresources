@@ -5,6 +5,24 @@ testresources release notes
 IN DEVELOPMENT
 --------------
 
+2.0.1
+~~~~~
+
+CHANGES
+~~~~~~~
+
+* Update method signature in README.rst. (Lance Bragstad)
+
+* Fix reporting of classifiers in pypi. (Robert Collins)
+
+* Drop official support for older versions of Python: 2.6, 3.3.
+  No compatibility code has been removed, but it's likely dependencies
+  of testresources will stop working with these Python versions.
+  (Jelmer Vernooij)
+
+* Honor dependencies ordering when switching between resources.
+  (Free Ekanayaka)
+
 2.0.0
 ~~~~~
 
