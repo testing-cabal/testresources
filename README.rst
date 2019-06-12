@@ -193,7 +193,7 @@ testresources.OptimisingTestSuite
 This TestSuite will introspect all the test cases it holds directly and if
 they declare needed resources, will run the tests in an order that attempts to
 minimise the number of setup and tear downs required. It attempts to achieve
-this by callling getResource() and finishedWith() around the sequence of tests
+this by calling getResource() and finishedWith() around the sequence of tests
 that use a specific resource.
 
 Tests are added to an OptimisingTestSuite as normal. Any standard library
