@@ -15,7 +15,6 @@
 #  license.
 #
 
-import six
 import testtools
 import random
 import testresources
@@ -538,7 +537,7 @@ class TestGraphStuff(testtools.TestCase):
         permutations.append([case4, case1, case3, case2])
         return permutations
 
-    @unittest2.skipIf(six.PY3, "Flaky on Python 3, see LP #1645008")
+    @testtools.skip("Flaky on Python 2/3, see LP #1645008")
     def testBasicSortTests(self):
         # Test every permutation of inputs, with legacy tests.
         # Cannot use equal costs because of the use of
