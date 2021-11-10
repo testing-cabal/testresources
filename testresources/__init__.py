@@ -20,7 +20,10 @@
 import heapq
 import inspect
 import unittest
-import collections
+try:
+    from collections.abc import MutableSet
+except ImportError:
+    from collections import MutableSet
 try:
     import unittest2
 except ImportError:
@@ -192,7 +195,7 @@ def _strongly_connected_components(graph, no_resources):
     return partitions
 
 
-class _OrderedSet(collections.MutableSet):
+class _OrderedSet(MutableSet):
     """This is taken from the OrderedSet recipe link in the Python 2 docs.
 
     See:
