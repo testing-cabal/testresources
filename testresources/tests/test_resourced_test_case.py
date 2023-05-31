@@ -129,7 +129,7 @@ class TestResourcedTestCase(testtools.TestCase):
         self.resourced_case.resources = [("foo", self.resource_manager)]
         self.resourced_case.setUpResources()
         self.resourced_case.tearDownResources()
-        self.failIf(hasattr(self.resourced_case, "foo"))
+        self.assertFalse(hasattr(self.resourced_case, "foo"))
 
     def testTearDownResourcesStopsUsingResource(self):
         # tearDownResources records that there is one less use of each
@@ -158,5 +158,5 @@ class TestResourcedTestCase(testtools.TestCase):
         self.assertEqual(self.resourced_case.foo, self.resource)
         self.assertEqual(self.resource_manager._uses, 1)
         self.resourced_case.tearDown()
-        self.failIf(hasattr(self.resourced_case, "foo"))
+        self.assertFalse(hasattr(self.resourced_case, "foo"))
         self.assertEqual(self.resource_manager._uses, 0)
