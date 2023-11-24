@@ -71,7 +71,6 @@ def _digraph_to_graph(digraph, prime_node_mapping):
     for from_node, to_nodes in digraph.items():
         from_prime = prime_node_mapping[from_node]
         for to_node, value in to_nodes.items():
-            to_prime = prime_node_mapping[to_node]
             result[from_prime][to_node] = value
             result[to_node][from_prime] = value
     return result

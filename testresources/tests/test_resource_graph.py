@@ -20,9 +20,7 @@
 
 import testtools
 import testresources
-from testresources import split_by_resources, _resource_graph
-from testresources.tests import ResultWithResourceExtensions
-import unittest
+from testresources import _resource_graph
 
 
 def test_suite():
