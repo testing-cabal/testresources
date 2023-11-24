@@ -450,7 +450,7 @@ class TestCostGraph(testtools.TestCase):
         self.assertEqual({}, graph)
 
     def testSingletonGraph(self):
-        resource = self.makeResource()
+        _resource = self.makeResource()
         suite = testresources.OptimisingTestSuite()
         graph = suite._getGraph([frozenset()])
         self.assertEqual({frozenset(): {}}, graph)
