@@ -17,7 +17,7 @@ CHANGES
 
 * Refactor failIf to assertFalse for Python 3.12 Compatibility (cjwatson)
 
-* Add support to Python 3.10 (jelmer)
+* Add support for Python >=3.10 (jelmer)
 
 
 2.0.1
