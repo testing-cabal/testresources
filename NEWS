@@ -5,6 +5,21 @@ testresources release notes
 IN DEVELOPMENT
 --------------
 
+2.0.2
+~~~~~
+
+CHANGES
+~~~~~~~
+
+* Skip testBasicSortTests in general (Kelledin)
+
+* Add a TestResourceManager.id() API for letting test results report about a resource identity (freeekanayaka)
+
+* Refactor failIf to assertFalse for Python 3.12 Compatibility (cjwatson)
+
+* Add support for Python >=3.10 (jelmer)
+
+
 2.0.1
 ~~~~~
 
