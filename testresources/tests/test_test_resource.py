@@ -2,12 +2,12 @@
 #  of resources by test cases.
 #
 #  Copyright (c) 2005-2010 Testresources Contributors
-#  
+#
 #  Licensed under either the Apache License, Version 2.0 or the BSD 3-clause
 #  license at the users choice. A copy of both licenses are available in the
 #  project source as Apache-2.0 and BSD. You may not use this file except in
 #  compliance with one of these two licences.
-#  
+#
 #  Unless required by applicable law or agreed to in writing, software distributed
 #  under these licenses is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 #  CONDITIONS OF ANY KIND, either express or implied.  See the license you chose
@@ -22,7 +22,7 @@ import testresources
 from testresources.tests import (
     ResultWithResourceExtensions,
     ResultWithoutResourceExtensions,
-    )
+)
 
 
 def test_suite():
@@ -32,7 +32,6 @@ def test_suite():
 
 
 class MockResourceInstance(object):
-
     def __init__(self, name):
         self._name = name
 
@@ -74,7 +73,6 @@ class MockResettableResource(MockResource):
 
 
 class TestTestResource(testtools.TestCase):
-
     def testUnimplementedGetResource(self):
         # By default, TestResource raises NotImplementedError on getResource
         # because make is not defined initially.
@@ -175,7 +173,7 @@ class TestTestResource(testtools.TestCase):
         resource_manager.resources.append(("dep3", dep3))
         r = resource_manager.getResource()
         dep2.dirtied(r.dep2)
-        r2 =dep2.getResource()
+        r2 = dep2.getResource()
         self.assertTrue(resource_manager.isDirty())
         resource_manager.finishedWith(r)
         dep2.finishedWith(r2)
@@ -384,8 +382,10 @@ class TestTestResource(testtools.TestCase):
         result = ResultWithResourceExtensions()
         resource_manager = MockResource()
         r = resource_manager.getResource()
-        expected = [("clean", "start", resource_manager),
-            ("clean", "stop", resource_manager)]
+        expected = [
+            ("clean", "start", resource_manager),
+            ("clean", "stop", resource_manager),
+        ]
         resource_manager.finishedWith(r, result)
         self.assertEqual(expected, result._calls)
 
@@ -399,8 +399,10 @@ class TestTestResource(testtools.TestCase):
         result = ResultWithResourceExtensions()
         resource_manager = MockResource()
         r = resource_manager.getResource(result)
-        expected = [("make", "start", resource_manager),
-            ("make", "stop", resource_manager)]
+        expected = [
+            ("make", "start", resource_manager),
+            ("make", "stop", resource_manager),
+        ]
         resource_manager.finishedWith(r)
         self.assertEqual(expected, result._calls)
 
@@ -419,9 +421,10 @@ class TestTestResource(testtools.TestCase):
     def testResetActivityForResourceWithExtensions(self):
         result = ResultWithResourceExtensions()
         resource_manager = MockResource()
-        expected = [("reset", "start", resource_manager),
+        expected = [
+            ("reset", "start", resource_manager),
             ("reset", "stop", resource_manager),
-            ]
+        ]
         resource_manager.getResource()
         r = resource_manager.getResource()
         resource_manager.dirtied(r)
@@ -434,64 +437,84 @@ class TestTestResource(testtools.TestCase):
 
     def testId(self):
         resource_manager = testresources.TestResource()
-        self.assertEqual(
-            "testresources.TestResourceManager", resource_manager.id())
+        self.assertEqual("testresources.TestResourceManager", resource_manager.id())
 
 
 class TestGenericResource(testtools.TestCase):
-
     def test_default_uses_setUp_tearDown(self):
         calls = []
+
         class Wrapped:
             def setUp(self):
-                calls.append('setUp')
+                calls.append("setUp")
+
             def tearDown(self):
-                calls.append('tearDown')
+                calls.append("tearDown")
+
         mgr = testresources.GenericResource(Wrapped)
         resource = mgr.getResource()
-        self.assertEqual(['setUp'], calls)
+        self.assertEqual(["setUp"], calls)
         mgr.finishedWith(resource)
-        self.assertEqual(['setUp', 'tearDown'], calls)
+        self.assertEqual(["setUp", "tearDown"], calls)
         self.assertIsInstance(resource, Wrapped)
 
     def test_dependencies_passed_to_factory(self):
         calls = []
+
         class Wrapped:
             def __init__(self, **args):
                 calls.append(args)
-            def setUp(self):pass
-            def tearDown(self):pass
+
+            def setUp(self):
+                pass
+
+            def tearDown(self):
+                pass
+
         class Trivial(testresources.TestResource):
             def __init__(self, thing):
                 testresources.TestResource.__init__(self)
                 self.thing = thing
-            def make(self, dependency_resources):return self.thing
-            def clean(self, resource):pass
+
+            def make(self, dependency_resources):
+                return self.thing
+
+            def clean(self, resource):
+                pass
+
         mgr = testresources.GenericResource(Wrapped)
-        mgr.resources = [('foo', Trivial('foo')), ('bar', Trivial('bar'))]
+        mgr.resources = [("foo", Trivial("foo")), ("bar", Trivial("bar"))]
         resource = mgr.getResource()
-        self.assertEqual([{'foo':'foo', 'bar':'bar'}], calls)
+        self.assertEqual([{"foo": "foo", "bar": "bar"}], calls)
         mgr.finishedWith(resource)
 
     def test_setup_teardown_controllable(self):
         calls = []
+
         class Wrapped:
             def start(self):
-                calls.append('setUp')
+                calls.append("setUp")
+
             def stop(self):
-                calls.append('tearDown')
-        mgr = testresources.GenericResource(Wrapped,
-            setup_method_name='start', teardown_method_name='stop')
+                calls.append("tearDown")
+
+        mgr = testresources.GenericResource(
+            Wrapped, setup_method_name="start", teardown_method_name="stop"
+        )
         resource = mgr.getResource()
-        self.assertEqual(['setUp'], calls)
+        self.assertEqual(["setUp"], calls)
         mgr.finishedWith(resource)
-        self.assertEqual(['setUp', 'tearDown'], calls)
+        self.assertEqual(["setUp", "tearDown"], calls)
         self.assertIsInstance(resource, Wrapped)
 
     def test_always_dirty(self):
         class Wrapped:
-            def setUp(self):pass
-            def tearDown(self):pass
+            def setUp(self):
+                pass
+
+            def tearDown(self):
+                pass
+
         mgr = testresources.GenericResource(Wrapped)
         resource = mgr.getResource()
         self.assertTrue(mgr.isDirty())
@@ -499,23 +522,25 @@ class TestGenericResource(testtools.TestCase):
 
     def testId(self):
         class Wrapped:
-            def setUp(self):pass
-            def tearDown(self):pass
+            def setUp(self):
+                pass
+
+            def tearDown(self):
+                pass
+
         mgr = testresources.GenericResource(Wrapped)
-        self.assertEqual(
-            "testresources.GenericResource[Wrapped]", mgr.id())
+        self.assertEqual("testresources.GenericResource[Wrapped]", mgr.id())
 
 
 class TestFixtureResource(testtools.TestCase):
-
     def test_uses_setUp_cleanUp(self):
         fixture = LoggingFixture()
         mgr = testresources.FixtureResource(fixture)
         resource = mgr.getResource()
         self.assertEqual(fixture, resource)
-        self.assertEqual(['setUp'], fixture.calls)
+        self.assertEqual(["setUp"], fixture.calls)
         mgr.finishedWith(resource)
-        self.assertEqual(['setUp', 'cleanUp'], fixture.calls)
+        self.assertEqual(["setUp", "cleanUp"], fixture.calls)
 
     def test_always_dirty(self):
         fixture = LoggingFixture()
@@ -530,13 +555,12 @@ class TestFixtureResource(testtools.TestCase):
         resource = mgr.getResource()
         mgr.reset(resource)
         mgr.finishedWith(resource)
-        self.assertEqual(
-            ['setUp', 'reset', 'cleanUp'], fixture.calls)
+        self.assertEqual(["setUp", "reset", "cleanUp"], fixture.calls)
 
     def testId(self):
         class MyLoggingFixture(LoggingFixture):
             def __str__(self):
                 return "my-logger"
+
         mgr = testresources.FixtureResource(MyLoggingFixture())
-        self.assertEqual(
-            "testresources.FixtureResource[my-logger]", mgr.id())
+        self.assertEqual("testresources.FixtureResource[my-logger]", mgr.id())

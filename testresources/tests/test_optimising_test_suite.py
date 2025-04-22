@@ -2,12 +2,12 @@
 #  of resources by test cases.
 #
 #  Copyright (c) 2005-2010 Testresources Contributors
-#  
+#
 #  Licensed under either the Apache License, Version 2.0 or the BSD 3-clause
 #  license at the users choice. A copy of both licenses are available in the
 #  project source as Apache-2.0 and BSD. You may not use this file except in
 #  compliance with one of these two licences.
-#  
+#
 #  Unless required by applicable law or agreed to in writing, software distributed
 #  under these licenses is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 #  CONDITIONS OF ANY KIND, either express or implied.  See the license you chose
@@ -21,6 +21,7 @@ import testresources
 from testresources import split_by_resources
 from testresources.tests import ResultWithResourceExtensions
 import unittest
+
 try:
     import unittest2
 except ImportError:
@@ -29,6 +30,7 @@ except ImportError:
 
 def test_suite():
     from testresources.tests import TestUtil
+
     loader = TestUtil.TestLoader()
     result = loader.loadTestsFromName(__name__)
     return result
@@ -38,8 +40,8 @@ class CustomSuite(unittest.TestSuite):
     """Custom TestSuite that's comparable using == and !=."""
 
     def __eq__(self, other):
-        return (self.__class__ == other.__class__
-                and self._tests == other._tests)
+        return self.__class__ == other.__class__ and self._tests == other._tests
+
     def __ne__(self, other):
         return not self.__eq__(other)
 
@@ -55,32 +57,35 @@ class MakeCounter(testresources.TestResource):
 
     def clean(self, resource):
         self.cleans += 1
-        self.calls.append(('clean', resource))
+        self.calls.append(("clean", resource))
 
     def make(self, dependency_resources):
         self.makes += 1
         resource = "boo %d" % self.makes
-        self.calls.append(('make', resource))
+        self.calls.append(("make", resource))
         return resource
 
 
 class TestOptimisingTestSuite(testtools.TestCase):
-
     def makeTestCase(self, test_running_hook=None):
         """Make a normal TestCase."""
+
         class TestCaseForTesting(unittest.TestCase):
             def runTest(self):
                 if test_running_hook:
                     test_running_hook(self)
-        return TestCaseForTesting('runTest')
+
+        return TestCaseForTesting("runTest")
 
     def makeResourcedTestCase(self, resource_manager, test_running_hook):
         """Make a ResourcedTestCase."""
+
         class ResourcedTestCaseForTesting(testresources.ResourcedTestCase):
             def runTest(self):
                 test_running_hook(self)
-        test_case = ResourcedTestCaseForTesting('runTest')
-        test_case.resources = [('_default', resource_manager)]
+
+        test_case = ResourcedTestCaseForTesting("runTest")
+        test_case.resources = [("_default", resource_manager)]
         return test_case
 
     def setUp(self):
@@ -127,8 +132,8 @@ class TestOptimisingTestSuite(testtools.TestCase):
         case2 = self.makeTestCase()
         case3 = self.makeTestCase()
         suite = unittest.TestSuite(
-            [unittest.TestSuite([case1, unittest.TestSuite([case2])]),
-             case3])
+            [unittest.TestSuite([case1, unittest.TestSuite([case2])]), case3]
+        )
         self.optimising_suite.addTest(suite)
         self.assertEqual([case1, case2, case3], self.optimising_suite._tests)
 
@@ -142,7 +147,8 @@ class TestOptimisingTestSuite(testtools.TestCase):
         self.optimising_suite.addTest(suite)
         self.assertEqual(
             [CustomSuite([case1]), CustomSuite([inner_suite])],
-            self.optimising_suite._tests)
+            self.optimising_suite._tests,
+        )
 
     def testAddPullsNonStandardSuitesUp(self):
         # addTest flattens standard TestSuites, even those that contain custom
@@ -152,15 +158,18 @@ class TestOptimisingTestSuite(testtools.TestCase):
         case2 = self.makeTestCase()
         inner_suite = CustomSuite([case1, case2])
         self.optimising_suite.addTest(
-            unittest.TestSuite([unittest.TestSuite([inner_suite])]))
+            unittest.TestSuite([unittest.TestSuite([inner_suite])])
+        )
         self.assertEqual(
-            [CustomSuite([case1]), CustomSuite([case2])],
-            self.optimising_suite._tests)
+            [CustomSuite([case1]), CustomSuite([case2])], self.optimising_suite._tests
+        )
 
     def testSingleCaseResourceAcquisition(self):
         sample_resource = MakeCounter()
+
         def getResourceCount(test):
             self.assertEqual(sample_resource._uses, 2)
+
         case = self.makeResourcedTestCase(sample_resource, getResourceCount)
         self.optimising_suite.addTest(case)
         result = unittest.TestResult()
@@ -171,8 +180,10 @@ class TestOptimisingTestSuite(testtools.TestCase):
 
     def testResourceReuse(self):
         make_counter = MakeCounter()
+
         def getResourceCount(test):
             self.assertEqual(make_counter._uses, 2)
+
         case = self.makeResourcedTestCase(make_counter, getResourceCount)
         case2 = self.makeResourcedTestCase(make_counter, getResourceCount)
         self.optimising_suite.addTest(case)
@@ -187,8 +198,8 @@ class TestOptimisingTestSuite(testtools.TestCase):
 
     def testResultPassedToResources(self):
         resource_manager = MakeCounter()
-        test_case = self.makeTestCase(lambda x:None)
-        test_case.resources = [('_default', resource_manager)]
+        test_case = self.makeTestCase(lambda x: None)
+        test_case.resources = [("_default", resource_manager)]
         self.optimising_suite.addTest(test_case)
         result = ResultWithResourceExtensions()
         self.optimising_suite.run(result)
@@ -217,14 +228,19 @@ class TestOptimisingTestSuite(testtools.TestCase):
 
     def testResourcesDroppedForNonResourcedTestCase(self):
         sample_resource = MakeCounter()
+
         def resourced_case_hook(test):
             self.assertTrue(sample_resource._uses > 0)
-        self.optimising_suite.addTest(self.makeResourcedTestCase(
-            sample_resource, resourced_case_hook))
+
+        self.optimising_suite.addTest(
+            self.makeResourcedTestCase(sample_resource, resourced_case_hook)
+        )
+
         def normal_case_hook(test):
             # The resource should not be acquired when the normal test
             # runs.
             self.assertEqual(sample_resource._uses, 0)
+
         self.optimising_suite.addTest(self.makeTestCase(normal_case_hook))
         result = unittest.TestResult()
         self.optimising_suite.run(result)
@@ -235,8 +251,10 @@ class TestOptimisingTestSuite(testtools.TestCase):
 
     def testDirtiedResourceNotRecreated(self):
         make_counter = MakeCounter()
+
         def dirtyResource(test):
             make_counter.dirtied(test._default)
+
         case = self.makeResourcedTestCase(make_counter, dirtyResource)
         self.optimising_suite.addTest(case)
         result = unittest.TestResult()
@@ -248,11 +266,14 @@ class TestOptimisingTestSuite(testtools.TestCase):
 
     def testDirtiedResourceCleanedUp(self):
         make_counter = MakeCounter()
+
         def testOne(test):
-            make_counter.calls.append('test one')
+            make_counter.calls.append("test one")
             make_counter.dirtied(test._default)
+
         def testTwo(test):
-            make_counter.calls.append('test two')
+            make_counter.calls.append("test two")
+
         case1 = self.makeResourcedTestCase(make_counter, testOne)
         case2 = self.makeResourcedTestCase(make_counter, testTwo)
         self.optimising_suite.addTest(case1)
@@ -262,13 +283,17 @@ class TestOptimisingTestSuite(testtools.TestCase):
         self.assertEqual(result.testsRun, 2)
         self.assertEqual(result.wasSuccessful(), True)
         # Two resources should have been created and cleaned up
-        self.assertEqual(make_counter.calls,
-                         [('make', 'boo 1'),
-                          'test one',
-                          ('clean', 'boo 1'),
-                          ('make', 'boo 2'),
-                          'test two',
-                          ('clean', 'boo 2')])
+        self.assertEqual(
+            make_counter.calls,
+            [
+                ("make", "boo 1"),
+                "test one",
+                ("clean", "boo 1"),
+                ("make", "boo 2"),
+                "test two",
+                ("clean", "boo 2"),
+            ],
+        )
 
     def testSwitchConsidersDependencies(self):
         """
@@ -280,6 +305,7 @@ class TestOptimisingTestSuite(testtools.TestCase):
 
         class Resource(testresources.TestResource):
             """Dummy resource."""
+
             def __init__(self, name):
                 super(Resource, self).__init__()
                 self.name = name
@@ -292,34 +318,34 @@ class TestOptimisingTestSuite(testtools.TestCase):
                 cleans.append(resource.name)
 
         # Create two resources, the second depending on the first.
-        resource_one = Resource('one')
-        resource_two = Resource('two')
-        resource_two.resources = [('one', resource_one)]
+        resource_one = Resource("one")
+        resource_two = Resource("two")
+        resource_two.resources = [("one", resource_one)]
 
         test_case = self.makeTestCase(lambda x: None)
-        test_case.resources = [('two', resource_two)]
+        test_case.resources = [("two", resource_two)]
 
         self.optimising_suite.addTest(test_case)
         result = unittest.TestResult()
         self.optimising_suite.run(result)
 
         # The first resource was made before the second
-        self.assertEqual(makes, ['one', 'two'])
+        self.assertEqual(makes, ["one", "two"])
 
         # The second resource was cleaned before the first
-        self.assertEqual(cleans, ['two', 'one'])
+        self.assertEqual(cleans, ["two", "one"])
 
 
 class TestSplitByResources(testtools.TestCase):
     """Tests for split_by_resources."""
 
     def makeTestCase(self):
-        return unittest.TestCase('run')
+        return unittest.TestCase("run")
 
     def makeResourcedTestCase(self, has_resource=True):
-        case = testresources.ResourcedTestCase('run')
+        case = testresources.ResourcedTestCase("run")
         if has_resource:
-            case.resources = [('resource', testresources.TestResource())]
+            case.resources = [("resource", testresources.TestResource())]
         return case
 
     def testNoTests(self):
@@ -334,31 +360,33 @@ class TestSplitByResources(testtools.TestCase):
         resourced_case = self.makeResourcedTestCase()
         resource = resourced_case.resources[0][1]
         resource_set_tests = split_by_resources([resourced_case])
-        self.assertEqual({frozenset(): [],
-                          frozenset([resource]): [resourced_case]},
-                         resource_set_tests)
+        self.assertEqual(
+            {frozenset(): [], frozenset([resource]): [resourced_case]},
+            resource_set_tests,
+        )
 
     def testMultipleResources(self):
         resource1 = testresources.TestResource()
         resource2 = testresources.TestResource()
         resourced_case = self.makeResourcedTestCase(has_resource=False)
-        resourced_case.resources = [('resource1', resource1),
-                                    ('resource2', resource2)]
+        resourced_case.resources = [("resource1", resource1), ("resource2", resource2)]
         resource_set_tests = split_by_resources([resourced_case])
-        self.assertEqual({frozenset(): [],
-                          frozenset([resource1, resource2]): [resourced_case]},
-                         resource_set_tests)
+        self.assertEqual(
+            {frozenset(): [], frozenset([resource1, resource2]): [resourced_case]},
+            resource_set_tests,
+        )
 
     def testDependentResources(self):
         resource1 = testresources.TestResource()
         resource2 = testresources.TestResource()
-        resource1.resources = [('foo', resource2)]
+        resource1.resources = [("foo", resource2)]
         resourced_case = self.makeResourcedTestCase(has_resource=False)
-        resourced_case.resources = [('resource1', resource1)]
+        resourced_case.resources = [("resource1", resource1)]
         resource_set_tests = split_by_resources([resourced_case])
-        self.assertEqual({frozenset(): [],
-                          frozenset([resource1, resource2]): [resourced_case]},
-                         resource_set_tests)
+        self.assertEqual(
+            {frozenset(): [], frozenset([resource1, resource2]): [resourced_case]},
+            resource_set_tests,
+        )
 
     def testResourcedCaseWithNoResources(self):
         resourced_case = self.makeResourcedTestCase(has_resource=False)
@@ -367,15 +395,15 @@ class TestSplitByResources(testtools.TestCase):
 
     def testMixThemUp(self):
         normal_cases = [self.makeTestCase() for i in range(3)]
-        normal_cases.extend([
-            self.makeResourcedTestCase(has_resource=False) for i in range(3)])
+        normal_cases.extend(
+            [self.makeResourcedTestCase(has_resource=False) for i in range(3)]
+        )
         resourced_cases = [self.makeResourcedTestCase() for i in range(3)]
         all_cases = normal_cases + resourced_cases
         # XXX: Maybe I shouldn't be using random here.
         random.shuffle(all_cases)
         resource_set_tests = split_by_resources(all_cases)
-        self.assertEqual(set(normal_cases),
-                         set(resource_set_tests[frozenset()]))
+        self.assertEqual(set(normal_cases), set(resource_set_tests[frozenset()]))
         for case in resourced_cases:
             resource = case.resources[0][1]
             self.assertEqual([case], resource_set_tests[frozenset([resource])])
@@ -403,8 +431,7 @@ class TestCostOfSwitching(testtools.TestCase):
         a = self.makeResource()
         b = self.makeResource()
         self.assertEqual(0, self.suite.cost_of_switching(set([a]), set([a])))
-        self.assertEqual(
-            0, self.suite.cost_of_switching(set([a, b]), set([a, b])))
+        self.assertEqual(0, self.suite.cost_of_switching(set([a, b]), set([a, b])))
 
     # XXX: The next few tests demonstrate the current behaviour of the system.
     # We'll change them later.
@@ -413,16 +440,14 @@ class TestCostOfSwitching(testtools.TestCase):
         a = self.makeResource()
         b = self.makeResource()
         self.assertEqual(1, self.suite.cost_of_switching(set(), set([a])))
-        self.assertEqual(
-            1, self.suite.cost_of_switching(set([a]), set([a, b])))
+        self.assertEqual(1, self.suite.cost_of_switching(set([a]), set([a, b])))
         self.assertEqual(2, self.suite.cost_of_switching(set(), set([a, b])))
 
     def testOldResources(self):
         a = self.makeResource()
         b = self.makeResource()
         self.assertEqual(1, self.suite.cost_of_switching(set([a]), set()))
-        self.assertEqual(
-            1, self.suite.cost_of_switching(set([a, b]), set([a])))
+        self.assertEqual(1, self.suite.cost_of_switching(set([a, b]), set([a])))
         self.assertEqual(2, self.suite.cost_of_switching(set([a, b]), set()))
 
     def testCombo(self):
@@ -430,8 +455,7 @@ class TestCostOfSwitching(testtools.TestCase):
         b = self.makeResource()
         c = self.makeResource()
         self.assertEqual(2, self.suite.cost_of_switching(set([a]), set([b])))
-        self.assertEqual(
-            2, self.suite.cost_of_switching(set([a, c]), set([b, c])))
+        self.assertEqual(2, self.suite.cost_of_switching(set([a, c]), set([b, c])))
 
 
 class TestCostGraph(testtools.TestCase):
@@ -464,28 +488,37 @@ class TestCostGraph(testtools.TestCase):
 
         suite = testresources.OptimisingTestSuite()
         graph = suite._getGraph([no_resources, set1, set2])
-        self.assertEqual({no_resources: {set1: 2, set2: 1},
-                          set1: {no_resources: 2, set2: 1},
-                          set2: {no_resources: 1, set1: 1 }}, graph)
+        self.assertEqual(
+            {
+                no_resources: {set1: 2, set2: 1},
+                set1: {no_resources: 2, set2: 1},
+                set2: {no_resources: 1, set1: 1},
+            },
+            graph,
+        )
 
 
 class TestGraphStuff(testtools.TestCase):
-
     def setUp(self):
         super(TestGraphStuff, self).setUp()
+
         class MockTest(unittest.TestCase):
             def __repr__(self):
                 """The representation is the tests name.
 
                 This makes it easier to debug sorting failures.
                 """
-                return self.id().split('.')[-1]
+                return self.id().split(".")[-1]
+
             def test_one(self):
                 pass
+
             def test_two(self):
                 pass
+
             def test_three(self):
                 pass
+
             def test_four(self):
                 pass
 
@@ -550,10 +583,8 @@ class TestGraphStuff(testtools.TestCase):
         resource_two.tearDownCost = 5
         resource_three = testresources.TestResource()
 
-        self.case1.resources = [
-            ("_one", resource_one), ("_two", resource_two)]
-        self.case2.resources = [
-            ("_two", resource_two), ("_three", resource_three)]
+        self.case1.resources = [("_one", resource_one), ("_two", resource_two)]
+        self.case2.resources = [("_two", resource_two), ("_three", resource_three)]
         self.case3.resources = [("_three", resource_three)]
         # acceptable sorted orders are:
         # 1, 2, 3, 4
@@ -561,17 +592,20 @@ class TestGraphStuff(testtools.TestCase):
 
         for permutation in self._permute_four(self.cases):
             self.assertIn(
-                self.sortTests(permutation), [
+                self.sortTests(permutation),
+                [
                     [self.case1, self.case2, self.case3, self.case4],
-                    [self.case3, self.case2, self.case1, self.case4]],
-                "failed with permutation %s" % (permutation,))
+                    [self.case3, self.case2, self.case1, self.case4],
+                ],
+                "failed with permutation %s" % (permutation,),
+            )
 
     def testGlobalMinimum(self):
         # When a local minimum leads to a global non-minum, the global
         # non-minimum is still reached. We construct this by having a resource
         # that appears very cheap (it has a low setup cost) but is very
         # expensive to tear down. Then we have it be used twice: the global
-        # minimum depends on only tearing it down once. To prevent it 
+        # minimum depends on only tearing it down once. To prevent it
         # accidentally being chosen twice, we make one use of it be
         # on its own, and another with a resource to boost its cost,
         # finally we put a resource which is more expensive to setup
@@ -610,14 +644,11 @@ class TestGraphStuff(testtools.TestCase):
             [self.case1, self.case3, self.case2, self.case4],
             [self.case2, self.case3, self.case1, self.case4],
             [self.case3, self.case2, self.case1, self.case4],
-            ]
+        ]
 
-        self.case1.resources = [
-            ("_one", resource_one)]
-        self.case2.resources = [
-            ("_two", resource_two)]
-        self.case3.resources = [("_two", resource_two),
-            ("_three", resource_three)]
+        self.case1.resources = [("_one", resource_one)]
+        self.case2.resources = [("_two", resource_two)]
+        self.case3.resources = [("_two", resource_two), ("_three", resource_three)]
         for permutation in self._permute_four(self.cases):
             self.assertIn(self.sortTests(permutation), acceptable_orders)
 
@@ -635,10 +666,12 @@ class TestGraphStuff(testtools.TestCase):
             sorted = self.sortTests(permutation)
             self.assertEqual(
                 permutation.index(self.case1) < permutation.index(self.case2),
-                sorted.index(self.case1) < sorted.index(self.case2))
+                sorted.index(self.case1) < sorted.index(self.case2),
+            )
             self.assertEqual(
                 permutation.index(self.case3) < permutation.index(self.case4),
-                sorted.index(self.case3) < sorted.index(self.case4))
+                sorted.index(self.case3) < sorted.index(self.case4),
+            )
 
     def testSortingTwelveIndependentIsFast(self):
         # Given twelve independent resource sets, my patience is not exhausted.
@@ -647,13 +680,12 @@ class TestGraphStuff(testtools.TestCase):
             managers.append(testresources.TestResourceManager())
         # Add more sample tests
         cases = [self.case1, self.case2, self.case3, self.case4]
-        for pos in range(5,13):
-            cases.append(
-                testtools.clone_test_with_new_id(cases[0], 'case%d' % pos))
+        for pos in range(5, 13):
+            cases.append(testtools.clone_test_with_new_id(cases[0], "case%d" % pos))
         # We care that this is fast in this test, so we don't need to have
         # overlapping resource usage
         for case, manager in zip(cases, managers):
-            case.resources = [('_resource', manager)]
+            case.resources = [("_resource", manager)]
         # Any sort is ok, as long as its the right length :)
         result = self.sortTests(cases)
         self.assertEqual(12, len(result))
@@ -665,14 +697,13 @@ class TestGraphStuff(testtools.TestCase):
             managers.append(testresources.TestResourceManager())
         # Add more sample tests
         cases = [self.case1, self.case2, self.case3, self.case4]
-        for pos in range(5,13):
-            cases.append(
-                testtools.clone_test_with_new_id(cases[0], 'case%d' % pos))
+        for pos in range(5, 13):
+            cases.append(testtools.clone_test_with_new_id(cases[0], "case%d" % pos))
         tempdir = testresources.TestResourceManager()
         # give all tests a tempdir, enough to provoke a single partition in
         # the current code.
         for case, manager in zip(cases, managers):
-            case.resources = [('_resource', manager), ('tempdir', tempdir)]
+            case.resources = [("_resource", manager), ("tempdir", tempdir)]
         # Any sort is ok, as long as its the right length :)
         result = self.sortTests(cases)
         self.assertEqual(12, len(result))
@@ -690,7 +721,7 @@ class TestGraphStuff(testtools.TestCase):
         # In a dependency naive sort, we will have test3 between test1 and
         # test2 always. In a dependency aware sort, test1 and two will
         # always group.
-         
+
         resource_one = testresources.TestResource()
         resource_two = testresources.TestResource()
         resource_one_common = testresources.TestResource()
@@ -707,9 +738,18 @@ class TestGraphStuff(testtools.TestCase):
         resource_one.resources.append(("dep1", dep))
         resource_two.resources.append(("dep2", dep))
 
-        self.case1.resources = [("withdep", resource_one), ("common", resource_one_common)]
-        self.case2.resources = [("withdep", resource_two), ("common", resource_two_common)]
-        self.case3.resources = [("_one", resource_one_common), ("_two", resource_two_common)]
+        self.case1.resources = [
+            ("withdep", resource_one),
+            ("common", resource_one_common),
+        ]
+        self.case2.resources = [
+            ("withdep", resource_two),
+            ("common", resource_two_common),
+        ]
+        self.case3.resources = [
+            ("_one", resource_one_common),
+            ("_two", resource_two_common),
+        ]
         self.case4.resources = []
 
         acceptable_orders = [
@@ -717,7 +757,7 @@ class TestGraphStuff(testtools.TestCase):
             [self.case2, self.case1, self.case3, self.case4],
             [self.case3, self.case1, self.case2, self.case4],
             [self.case3, self.case2, self.case1, self.case4],
-            ]
+        ]
 
         for permutation in self._permute_four(self.cases):
             self.assertIn(self.sortTests(permutation), acceptable_orders)

@@ -23,7 +23,8 @@ import unittest
 class LogCollector(logging.Handler):
     def __init__(self):
         logging.Handler.__init__(self)
-        self.records=[]
+        self.records = []
+
     def emit(self, record):
         self.records.append(record.getMessage())
 
@@ -31,8 +32,8 @@ class LogCollector(logging.Handler):
 def makeCollectingLogger():
     """I make a logger instance that collects its logs for programmatic analysis
     -> (logger, collector)"""
-    logger=logging.Logger("collector")
-    handler=LogCollector()
+    logger = logging.Logger("collector")
+    handler = LogCollector()
     handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
     logger.addHandler(handler)
     return logger, handler
@@ -44,7 +45,7 @@ def visitTests(suite, visitor):
         visitor.visitCase(suite)
         return
     for test in suite._tests:
-        #Abusing types to avoid monkey patching unittest.TestCase.
+        # Abusing types to avoid monkey patching unittest.TestCase.
         # Maybe that would be better?
         try:
             test.visit(visitor)
@@ -55,7 +56,10 @@ def visitTests(suite, visitor):
                 visitor.visitSuite(test)
                 visitTests(test, visitor)
             else:
-                print("unvisitable non-unittest.TestCase element %r (%r)" % (test, test.__class__))
+                print(
+                    "unvisitable non-unittest.TestCase element %r (%r)"
+                    % (test, test.__class__)
+                )
 
 
 class TestSuite(unittest.TestSuite):
@@ -72,11 +76,15 @@ class TestSuite(unittest.TestSuite):
 
 class TestLoader(unittest.TestLoader):
     """Custome TestLoader to set the right TestSuite class."""
+
     suiteClass = TestSuite
+
 
 class TestVisitor(object):
     """A visitor for Tests"""
+
     def visitSuite(self, aTestSuite):
         pass
+
     def visitCase(self, aTestCase):
         pass
