@@ -27,6 +27,9 @@ jobs:
     - name: Lint with ruff
       run: |
         ruff check .
+    - name: Format with ruff
+      run: |
+        ruff format --check .
     - name: Test with testtools
       run: |
         python -m testtools.run testresources.tests.test_suite
