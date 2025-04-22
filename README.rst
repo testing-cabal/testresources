@@ -28,7 +28,7 @@ enterprise applications, or web servers ... let imagination run wild.
 Dependencies to build/selftest
 ==============================
 
-* Python 2.6+ (or 3.3+)
+* Python 3.9+
 * docutils
 * testtools (http://pypi.python.org/pypi/testtools/)
 * fixtures (http://pypi.python.org/pypi/fixtures)
@@ -36,7 +36,7 @@ Dependencies to build/selftest
 Dependencies to use testresources
 =================================
 
-* Python 2.6+ (or 3.3+)
+* Python 3.9+
 
 For older versions of Python, testresources <= 1.0.0 supported 2.4, 2.5 and
 3.2.
