@@ -22,11 +22,6 @@ from testresources import split_by_resources
 from testresources.tests import ResultWithResourceExtensions
 import unittest
 
-try:
-    import unittest2
-except ImportError:
-    unittest2 = None
-
 
 def test_suite():
     from testresources.tests import TestUtil
@@ -104,15 +99,6 @@ class TestOptimisingTestSuite(testtools.TestCase):
         # that suite.
         case = self.makeTestCase()
         suite = unittest.TestSuite([case])
-        self.optimising_suite.addTest(suite)
-        self.assertEqual([case], self.optimising_suite._tests)
-
-    @testtools.skipIf(unittest2 is None, "Unittest2 needed")
-    def testAddUnittest2TestSuite(self):
-        # Adding a unittest2 test suite is the same as adding all the tests in
-        # that suite.
-        case = self.makeTestCase()
-        suite = unittest2.TestSuite([case])
         self.optimising_suite.addTest(suite)
         self.assertEqual([case], self.optimising_suite._tests)
 
@@ -571,7 +557,6 @@ class TestGraphStuff(testtools.TestCase):
         return permutations
 
     def testBasicSortTests(self):
-        self.skipTest("flaky, see LP #1645008")
         # Test every permutation of inputs, with legacy tests.
         # Cannot use equal costs because of the use of
         # a 2*optimal heuristic for sorting: with equal
