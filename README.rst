@@ -6,14 +6,73 @@ optimisation where expensive common resources are needed for test cases - for
 example sample working trees for VCS systems, reference databases for
 enterprise applications, or web servers ... let your imagination run wild.
 
-How testresources Works
------------------------
+Usage
+-----
+
+Here is a minimal example demonstrating how to use testresources in your
+project. It's not very useful - temporary directories are *not* the kind of
+resource that testresources are most useful for - but it does demonstrate some
+of the key concepts and classes, which we will discuss in more detail below.
+Firstly, we have our "resource manager":
+
+.. code-block:: python
+
+    import shutil
+    import tempfile
+    import testresources
+
+
+    class TemporaryDirectoryResource(testresources.TestResourceManager):
+
+        def make(self, dependency_resources):
+            return tempfile.mkdtemp()
+
+        def clean(self, resource):
+            shutil.rmtree(resource)
+
+        def isDirty(self, resource):
+            # Assume the directory is always modified after use.
+            return True
+
+With the resource manager in place, we can then declare the resource in a test
+and access it via the assigned attribute:
+
+.. code-block:: python
+
+    import os
+    import unittest
+
+
+    class TestMyCode(unittest.TestCase, testresources.ResourcedTestCase):
+
+        resources = [('workdir', TemporaryDirectoryResource())]
+
+        def test_create_file(self):
+            # self.workdir is automatically set up before this test runs
+            # and torn down (or reused) afterwards.
+            path = os.path.join(self.workdir, 'output.txt')
+            with open(path, 'w') as f:
+                f.write('hello')
+            self.assertTrue(os.path.exists(path))
+
+Finally, we need to add a ``load_tests`` hook to the test module so that we cna
+use the ``OptimisingTestSuite``. This ensures our test runner will reorder
+tests to minimise the number of times the resource is set up and torn down:
+
+.. code-block:: python
+
+    def load_tests(loader, tests, pattern):
+        return testresources.OptimisingTestSuite(tests)
+
+How it works
+------------
 
 The basic idea of testresources is:
 
 * Tests declare the resources they need in a ``resources`` attribute.
 * When the test is run, the required resource objects are allocated (either
-  newly constructed, or reused), and assigned to attributes of the TestCase.
+  newly constructed, or reused), and assigned to attributes of the
+  ``TestCase``.
 
 testresources distinguishes a 'resource manager' (a subclass of
 ``TestResourceManager``) which acts as a kind of factory, and a 'resource'
@@ -29,7 +88,7 @@ when an OptimisingTestSuite is wrapped around a test suite using those
 features, the result will be flattened for optimisation and those setup's will
 not run at all.
 
-Main Classes
+Main classes
 ------------
 
 ``testresources.ResourcedTestCase``
@@ -185,10 +244,10 @@ testresources will log activity about resource creation and destruction to the
 result object tests are run with. 6 extension methods are looked for:
 ``startCleanResource``, ``stopCleanResource``, ``startMakeResource``,
 ``stopMakeResource``, ``startResetResource`` and finally ``stopResetResource``.
-``testresources.tests.ResultWithResourceExtensions`` is
-an example of a ``TestResult`` with these methods present.
+``testresources.tests.ResultWithResourceExtensions`` is an example of a
+``TestResult`` with these methods present.
 
-Controlling Resource Reuse
+Controlling resource reuse
 --------------------------
 
 When or how do I mark the resource dirtied?
