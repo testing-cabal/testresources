@@ -557,7 +557,6 @@ class TestGraphStuff(testtools.TestCase):
         return permutations
 
     def testBasicSortTests(self):
-        self.skipTest("flaky, see LP #1645008")
         # Test every permutation of inputs, with legacy tests.
         # Cannot use equal costs because of the use of
         # a 2*optimal heuristic for sorting: with equal
