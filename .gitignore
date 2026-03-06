@@ -1,6 +1,5 @@
 TAGS
 tags
-lib/pyunit3k
 lib/testtools
 __pycache__
 ./dist
@@ -14,3 +13,4 @@ dist/
 testresources.egg-info/
 .tox
 *.pyc
+testresources/_version.py

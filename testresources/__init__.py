@@ -21,10 +21,7 @@ import heapq
 import inspect
 import unittest
 
-try:
-    from collections.abc import MutableSet
-except ImportError:
-    from collections import MutableSet
+from collections.abc import MutableSet
 
 # same format as sys.version_info: "A tuple containing the five components of
 # the version number: major, minor, micro, releaselevel, and serial. All
@@ -38,11 +35,8 @@ except ImportError:
 # If the releaselevel is 'final', then the tarball will be major.minor.micro.
 # Otherwise it is major.minor.micro~$(revno).
 
-from pbr.version import VersionInfo
-
-_version = VersionInfo("testresources")
-__version__ = _version.semantic_version().version_tuple()
-version = _version.release_string()
+from testresources._version import __version_tuple__ as __version__  # noqa
+from testresources._version import __version__ as version  # noqa
 
 
 def test_suite():
