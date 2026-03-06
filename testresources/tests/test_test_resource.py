@@ -15,7 +15,7 @@
 #  license.
 #
 
-from fixtures.tests.helpers import LoggingFixture
+import fixtures
 import testtools
 
 import testresources
@@ -29,6 +29,23 @@ def test_suite():
     loader = testresources.tests.TestUtil.TestLoader()
     result = loader.loadTestsFromName(__name__)
     return result
+
+
+class LoggingFixture(fixtures.Fixture):
+    def __init__(self, suffix="", calls=None):
+        super().__init__()
+        if calls is None:
+            calls = []
+        self.calls = calls
+        self.suffix = suffix
+
+    def setUp(self):
+        super().setUp()
+        self.calls.append("setUp" + self.suffix)
+        self.addCleanup(self.calls.append, "cleanUp" + self.suffix)
+
+    def reset(self):
+        self.calls.append("reset" + self.suffix)
 
 
 class MockResourceInstance(object):
