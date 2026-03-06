@@ -25,10 +25,6 @@ try:
     from collections.abc import MutableSet
 except ImportError:
     from collections import MutableSet
-try:
-    import unittest2
-except ImportError:
-    unittest2 = None
 
 # same format as sys.version_info: "A tuple containing the five components of
 # the version number: major, minor, micro, releaselevel, and serial. All
@@ -483,8 +479,6 @@ class OptimisingTestSuite(unittest.TestSuite):
 
 
 OptimisingTestSuite.known_suite_classes = (unittest.TestSuite, OptimisingTestSuite)
-if unittest2 is not None:
-    OptimisingTestSuite.known_suite_classes += (unittest2.TestSuite,)
 
 
 class TestLoader(unittest.TestLoader):
