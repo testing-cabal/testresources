@@ -1,48 +1,13 @@
-testresources: extensions to python unittest to allow declarative use
-of resources by test cases.
+testresources
+=============
 
-Copyright (C) 2005-2013  Robert Collins <robertc@robertcollins.net>
-
-  Licensed under either the Apache License, Version 2.0 or the BSD 3-clause
-  license at the users choice. A copy of both licenses are available in the
-  project source as Apache-2.0 and BSD. You may not use this file except in
-  compliance with one of these two licences.
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under these licenses is distributed on an "AS IS" BASIS, WITHOUT
-  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-  license you chose for the specific language governing permissions and
-  limitations under that license.
-
-  See the COPYING file for full details on the licensing of Testresources.
-
-
-Testresources
-+++++++++++++
-
-testresources extends unittest with a clean and simple api to provide test
+testresources extends ``unittest`` with a clean and simple API to provide test
 optimisation where expensive common resources are needed for test cases - for
 example sample working trees for VCS systems, reference databases for
-enterprise applications, or web servers ... let imagination run wild.
-
-Dependencies to build/selftest
-==============================
-
-* Python 3.9+
-* docutils
-* testtools (http://pypi.python.org/pypi/testtools/)
-* fixtures (http://pypi.python.org/pypi/fixtures)
-
-Dependencies to use testresources
-=================================
-
-* Python 3.9+
-
-For older versions of Python, testresources <= 1.0.0 supported 2.4, 2.5 and
-3.2.
+enterprise applications, or web servers ... let your imagination run wild.
 
 How testresources Works
-=======================
+-----------------------
 
 The basic idea of testresources is:
 
@@ -65,10 +30,10 @@ features, the result will be flattened for optimisation and those setup's will
 not run at all.
 
 Main Classes
-============
+------------
 
-testresources.ResourcedTestCase
--------------------------------
+``testresources.ResourcedTestCase``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By extending or mixing-in this class, tests can have necessary resources
 automatically allocated and disposed or recycled.
@@ -99,8 +64,8 @@ For example::
         def test_log(self):
             show_log(self.branch, ...)
 
-testresources.TestResourceManager
----------------------------------
+``testresources.TestResourceManager``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A TestResourceManager is an object that tests can use to create resources.  It
 can be overridden to manage different types of resources.  Normally test code
@@ -175,20 +140,20 @@ See pydoc testresources.TestResourceManager for details.
 
 .. _sample: doc/example.py
 
-testresources.GenericResource
------------------------------
+``testresources.GenericResource``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Glue to adapt testresources to an existing resource-like class.
 
-testresources.FixtureResource
------------------------------
+``testresources.FixtureResource``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Glue to adapt testresources to the simpler fixtures.Fixture API. Long
 term testresources is likely to consolidate on that simpler API as the
 recommended method of writing resources.
 
-testresources.OptimisingTestSuite
----------------------------------
+``testresources.OptimisingTestSuite``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This TestSuite will introspect all the test cases it holds directly and if
 they declare needed resources, will run the tests in an order that attempts to
@@ -208,14 +173,13 @@ OptimisingTestSuite. You could add everything to a single OptimisingTestSuite,
 getting global optimisation or you could use several smaller
 OptimisingTestSuites.
 
-
-testresources.TestLoader
-------------------------
+``testresources.TestLoader``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This is a trivial TestLoader that creates OptimisingTestSuites by default.
 
-unittest.TestResult
--------------------
+``unittest.TestResult``
+~~~~~~~~~~~~~~~~~~~~~~~
 
 testresources will log activity about resource creation and destruction to the
 result object tests are run with. 6 extension methods are looked for:
@@ -225,7 +189,7 @@ result object tests are run with. 6 extension methods are looked for:
 an example of a ``TestResult`` with these methods present.
 
 Controlling Resource Reuse
-==========================
+--------------------------
 
 When or how do I mark the resource dirtied?
 
@@ -242,7 +206,7 @@ Finally, you can arrange for the returned resource to always call back to
 ``TestResourceManager.dirtied`` on the first operation that mutates it.
 
 FAQ
-===
+---
 
 * Can I dynamically request resources inside a test method?
 
@@ -264,9 +228,20 @@ FAQ
   I guess you should arrange for a single instance to be held in an appropriate
   module scope, then referenced by the test classes that want to share it.
 
-Releasing
-=========
+License
+-------
 
-1. Add a section to NEWS (after In Development).
-2. git tag -s
-3. python setup.py sdist bdist_wheel upload -s
+Copyright (C) 2005-2013  Robert Collins <robertc@robertcollins.net>
+
+  Licensed under either the Apache License, Version 2.0 or the BSD 3-clause
+  license at the users choice. A copy of both licenses are available in the
+  project source as Apache-2.0 and BSD. You may not use this file except in
+  compliance with one of these two licences.
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under these licenses is distributed on an "AS IS" BASIS, WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+  license you chose for the specific language governing permissions and
+  limitations under that license.
+
+  See the COPYING file for full details on the licensing of Testresources.
