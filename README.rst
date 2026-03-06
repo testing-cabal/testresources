@@ -11,9 +11,10 @@ Usage
 
 Here is a minimal example demonstrating how to use testresources in your
 project. It's not very useful - temporary directories are *not* the kind of
-resource that testresources are most useful for - but it does demonstrate some
-of the key concepts and classes, which we will discuss in more detail below.
-Firstly, we have our "resource manager":
+resource that testresources are most useful for and you would be better off
+using something like fixtures for this - but it does demonstrate some of the
+key concepts and classes, which we will discuss in more detail below. Firstly,
+we have our "resource manager":
 
 .. code-block:: python
 
@@ -204,12 +205,16 @@ See pydoc testresources.TestResourceManager for details.
 
 Glue to adapt testresources to an existing resource-like class.
 
+.. _fixtureresource:
+
 ``testresources.FixtureResource``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Glue to adapt testresources to the simpler fixtures.Fixture API. Long
-term testresources is likely to consolidate on that simpler API as the
-recommended method of writing resources.
+Glue to adapt testresources to the simpler ``fixtures.Fixture`` API. Long term
+testresources is likely to consolidate on that simpler API as the recommended
+method of writing resources.
+
+This is discussed in further detail in `testresources vs. fixtures`_.
 
 ``testresources.OptimisingTestSuite``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -263,6 +268,53 @@ see if it is safe to reuse.
 
 Finally, you can arrange for the returned resource to always call back to
 ``TestResourceManager.dirtied`` on the first operation that mutates it.
+
+testresources vs. fixtures
+--------------------------
+
+The `fixtures <https://pypi.org/project/fixtures/>`_ library solves a similar
+problem: managing test dependencies that need to be set up and torn down.
+However, testresources and fixtures differ in the scope of the test
+dependencies they manage.
+
+testresources is designed for resources that are expensive to create and can be
+safely shared across multiple tests.  The ``OptimisingTestSuite`` reorders
+tests at the suite level so that tests sharing the same expensive resource run
+consecutively, minimising the total number of setup and teardown cycles.  This
+makes sense when the cost of constructing the resource is meaningfully large
+relative to the cost of running the tests themselves. Examples of areas where
+testresources makes sense would be provisioning database backends that are
+shared across tests, or loading large, static test assets from disk.
+
+By comparison, fixtures is designed for per-test setup and teardown. A fixture
+is created fresh (or at least reset) for each test, and tests interact with it
+via ``useFixture()``. fixtures is therefore far better suited for things like
+mock patches, temporary directories, fake loggers, environment variables, or
+fake HTTP sessions. In all these cases, the overhead of managing the resources
+is low enough that recreating them per test is perfectly acceptable.
+
+Finally, there may be cases where you wish to use the framework provided by
+``fixtures.Fixture`` but avoid recreating it for every test in a module. To
+this end, the ``FixtureResource`` class is what you want. As discussed
+`previously <fixtureresource>`, this is a glue class that wraps any
+``fixtures.Fixture`` so it can participate in testresources' suite-level
+optimisation. If you already have a well-written fixture but want to avoid
+recreating it for every test in a module, wrapping it in a ``FixtureResource``
+and adding the ``load_tests`` hook is all that is needed. For example:
+
+.. code-block:: python
+
+    # Defined once at module scope so that all tests share the same instance.
+    MY_RESOURCE = testresources.FixtureResource(MyExpensiveFixture())
+
+    class MyTest(unittest.TestCase, testresources.ResourcedTestCase):
+        resources = [('data', MY_RESOURCE)]
+
+        def test_something(self):
+            self.data.some_attribute  # provided by MyExpensiveFixture
+
+    def load_tests(loader, tests, pattern):
+        return testresources.OptimisingTestSuite(tests)
 
 FAQ
 ---
