@@ -15,12 +15,14 @@
 #  license.
 #
 
-import testtools
 import random
+import unittest
+
+import testtools
+
 import testresources
 from testresources import split_by_resources
 from testresources.tests import ResultWithResourceExtensions
-import unittest
 
 
 def test_suite():
@@ -56,7 +58,7 @@ class MakeCounter(testresources.TestResource):
 
     def make(self, dependency_resources):
         self.makes += 1
-        resource = "boo %d" % self.makes
+        resource = f"boo {self.makes}"
         self.calls.append(("make", resource))
         return resource
 
@@ -84,7 +86,7 @@ class TestOptimisingTestSuite(testtools.TestCase):
         return test_case
 
     def setUp(self):
-        super(TestOptimisingTestSuite, self).setUp()
+        super().setUp()
         self.optimising_suite = testresources.OptimisingTestSuite()
 
     def testAddTest(self):
@@ -293,7 +295,7 @@ class TestOptimisingTestSuite(testtools.TestCase):
             """Dummy resource."""
 
             def __init__(self, name):
-                super(Resource, self).__init__()
+                super().__init__()
                 self.name = name
 
             def make(self, dependency_resources):
@@ -399,7 +401,7 @@ class TestCostOfSwitching(testtools.TestCase):
     """Tests for cost_of_switching."""
 
     def setUp(self):
-        super(TestCostOfSwitching, self).setUp()
+        super().setUp()
         self.suite = testresources.OptimisingTestSuite()
 
     def makeResource(self, setUpCost=1, tearDownCost=1):
@@ -486,7 +488,7 @@ class TestCostGraph(testtools.TestCase):
 
 class TestGraphStuff(testtools.TestCase):
     def setUp(self):
-        super(TestGraphStuff, self).setUp()
+        super().setUp()
 
         class MockTest(unittest.TestCase):
             def __repr__(self):
@@ -583,7 +585,7 @@ class TestGraphStuff(testtools.TestCase):
                     [self.case1, self.case2, self.case3, self.case4],
                     [self.case3, self.case2, self.case1, self.case4],
                 ],
-                "failed with permutation %s" % (permutation,),
+                f"failed with permutation {permutation}",
             )
 
     def testGlobalMinimum(self):
@@ -667,7 +669,7 @@ class TestGraphStuff(testtools.TestCase):
         # Add more sample tests
         cases = [self.case1, self.case2, self.case3, self.case4]
         for pos in range(5, 13):
-            cases.append(testtools.clone_test_with_new_id(cases[0], "case%d" % pos))
+            cases.append(testtools.clone_test_with_new_id(cases[0], f"case{pos}"))
         # We care that this is fast in this test, so we don't need to have
         # overlapping resource usage
         for case, manager in zip(cases, managers):
@@ -684,7 +686,7 @@ class TestGraphStuff(testtools.TestCase):
         # Add more sample tests
         cases = [self.case1, self.case2, self.case3, self.case4]
         for pos in range(5, 13):
-            cases.append(testtools.clone_test_with_new_id(cases[0], "case%d" % pos))
+            cases.append(testtools.clone_test_with_new_id(cases[0], f"case{pos}"))
         tempdir = testresources.TestResourceManager()
         # give all tests a tempdir, enough to provoke a single partition in
         # the current code.

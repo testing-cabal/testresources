@@ -22,10 +22,10 @@ from testresources.tests import TestUtil
 
 def test_suite():
     import testresources.tests.test_optimising_test_suite
+    import testresources.tests.test_resource_graph
     import testresources.tests.test_resourced_test_case
     import testresources.tests.test_test_loader
     import testresources.tests.test_test_resource
-    import testresources.tests.test_resource_graph
 
     result = TestUtil.TestSuite()
     result.addTest(testresources.tests.test_test_loader.test_suite())
@@ -36,7 +36,7 @@ def test_suite():
     return result
 
 
-class ResultWithoutResourceExtensions(object):
+class ResultWithoutResourceExtensions:
     """A test fake which does not have resource extensions."""
 
 

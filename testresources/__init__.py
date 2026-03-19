@@ -20,7 +20,6 @@
 import heapq
 import inspect
 import unittest
-
 from collections.abc import MutableSet
 
 # same format as sys.version_info: "A tuple containing the five components of
@@ -138,7 +137,7 @@ def _kruskals_graph_MST(graph):
     edges = set()
     for from_node, to_nodes in graph.items():
         for to_node, value in to_nodes.items():
-            edge = (value,) + tuple(sorted([from_node, to_node]))
+            edge = (value, *tuple(sorted([from_node, to_node])))
             edges.add(edge)
     edges = list(edges)
     heapq.heapify(edges)
@@ -529,7 +528,7 @@ class TestLoader(unittest.TestLoader):
     suiteClass = OptimisingTestSuite
 
 
-class TestResourceManager(object):
+class TestResourceManager:
     """A manager for resources that can be shared across tests.
 
     ResourceManagers can report activity to a TestResult. The methods
@@ -797,7 +796,7 @@ class GenericResource(TestResourceManager):
             be embedded in the string returned by the id() method, to identify
             the generic resource. Defaults to '__name__'.
         """
-        super(GenericResource, self).__init__()
+        super().__init__()
         self.resource_factory = resource_factory
         self.setup_method_name = setup_method_name
         self.teardown_method_name = teardown_method_name
@@ -819,9 +818,8 @@ class GenericResource(TestResourceManager):
 
         :see: The `id_attribute_name` parameter.
         """
-        return "%s[%s]" % (
-            super(GenericResource, self).id(),
-            getattr(self.resource_factory, self.id_attribute_name),
+        return (
+            f"{super().id()}[{getattr(self.resource_factory, self.id_attribute_name)}]"
         )
 
 
@@ -851,7 +849,7 @@ class FixtureResource(TestResourceManager):
 
         :param fixture: The fixture to wrap.
         """
-        super(FixtureResource, self).__init__()
+        super().__init__()
         self.fixture = fixture
 
     def clean(self, resource):
@@ -866,7 +864,7 @@ class FixtureResource(TestResourceManager):
 
         The default is to call str(fixture) to get such information.
         """
-        return "%s[%s]" % (super(FixtureResource, self).id(), str(self.fixture))
+        return f"{super().id()}[{self.fixture!s}]"
 
     def _reset(self, resource, dependency_resources):
         self.fixture.reset()
@@ -896,7 +894,7 @@ class ResourcedTestCase(unittest.TestCase):
     resources = []
 
     def setUp(self):
-        super(ResourcedTestCase, self).setUp()
+        super().setUp()
         self.setUpResources()
 
     def setUpResources(self):
@@ -904,7 +902,7 @@ class ResourcedTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.tearDownResources()
-        super(ResourcedTestCase, self).tearDown()
+        super().tearDown()
 
     def tearDownResources(self):
         tearDownResources(self, self.resources, _get_result())
@@ -946,7 +944,7 @@ def neededResources(resources):
         dependencies = neededResources(
             [dependency for name, dependency in resource.resources]
         )
-        for resource in dependencies + [resource]:
+        for resource in [*dependencies, resource]:
             if resource in seen:
                 continue
             seen.add(resource)

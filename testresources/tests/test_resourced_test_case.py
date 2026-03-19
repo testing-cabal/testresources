@@ -16,7 +16,9 @@
 #
 
 import unittest
+
 import testtools
+
 import testresources
 from testresources.tests import ResultWithResourceExtensions
 
@@ -38,13 +40,13 @@ class MockResource(testresources.TestResource):
         return self._resource
 
 
-class MockResourceInstance(object):
+class MockResourceInstance:
     """A resource instance."""
 
 
 class TestResourcedTestCase(testtools.TestCase):
     def setUp(self):
-        super(TestResourcedTestCase, self).setUp()
+        super().setUp()
 
         class Example(testresources.ResourcedTestCase):
             def test_example(self):
@@ -60,7 +62,7 @@ class TestResourcedTestCase(testtools.TestCase):
 
             def setUp(self):
                 self.setUpCalled = True
-                super(OtherBaseCase, self).setUp()
+                super().setUp()
 
         class OurCase(testresources.ResourcedTestCase, OtherBaseCase):
             def runTest(self):
@@ -76,7 +78,7 @@ class TestResourcedTestCase(testtools.TestCase):
 
             def tearDown(self):
                 self.tearDownCalled = True
-                super(OtherBaseCase, self).setUp()
+                super().setUp()
 
         class OurCase(testresources.ResourcedTestCase, OtherBaseCase):
             def runTest(self):

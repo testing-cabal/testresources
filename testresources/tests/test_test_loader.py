@@ -16,7 +16,8 @@
 #
 
 import testtools
-from testresources import TestLoader, OptimisingTestSuite
+
+from testresources import OptimisingTestSuite, TestLoader
 from testresources.tests import TestUtil
 
 

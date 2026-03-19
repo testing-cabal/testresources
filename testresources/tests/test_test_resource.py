@@ -20,8 +20,8 @@ import testtools
 
 import testresources
 from testresources.tests import (
-    ResultWithResourceExtensions,
     ResultWithoutResourceExtensions,
+    ResultWithResourceExtensions,
 )
 
 
@@ -48,7 +48,7 @@ class LoggingFixture(fixtures.Fixture):
         self.calls.append("reset" + self.suffix)
 
 
-class MockResourceInstance(object):
+class MockResourceInstance:
     def __init__(self, name):
         self._name = name
 
@@ -63,7 +63,7 @@ class MockResource(testresources.TestResourceManager):
     """Mock resource that logs the number of make and clean calls."""
 
     def __init__(self):
-        super(MockResource, self).__init__()
+        super().__init__()
         self.makes = 0
         self.cleans = 0
 
@@ -79,7 +79,7 @@ class MockResettableResource(MockResource):
     """Mock resource that logs the number of reset calls too."""
 
     def __init__(self):
-        super(MockResettableResource, self).__init__()
+        super().__init__()
         self.resets = 0
 
     def _reset(self, resource, dependency_resources):
