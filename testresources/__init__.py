@@ -20,15 +20,7 @@
 import heapq
 import inspect
 import unittest
-
-try:
-    from collections.abc import MutableSet
-except ImportError:
-    from collections import MutableSet
-try:
-    import unittest2
-except ImportError:
-    unittest2 = None
+from collections.abc import MutableSet
 
 # same format as sys.version_info: "A tuple containing the five components of
 # the version number: major, minor, micro, releaselevel, and serial. All
@@ -42,11 +34,56 @@ except ImportError:
 # If the releaselevel is 'final', then the tarball will be major.minor.micro.
 # Otherwise it is major.minor.micro~$(revno).
 
-from pbr.version import VersionInfo
 
-_version = VersionInfo("testresources")
-__version__ = _version.semantic_version().version_tuple()
-version = _version.release_string()
+def __get_git_version() -> str | None:
+    import os
+    import subprocess
+
+    cwd = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir)
+
+    try:
+        out = subprocess.check_output(
+            ["git", "describe"], stderr=subprocess.STDOUT, cwd=cwd
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+    try:
+        version = out.strip().decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+
+    if "-" in version:  # after tag
+        # convert version-N-githash to version.postN+githash
+        return version.replace("-", ".post", 1).replace("-g", "+git", 1)
+    else:
+        return version
+
+
+# same format as sys.version_info: "A tuple containing the five components of
+# the version number: major, minor, micro, releaselevel, and serial. All
+# values except releaselevel are integers; the release level is 'alpha',
+# 'beta', 'candidate', or 'final'. The version_info value corresponding to the
+# Python version 2.0 is (2, 0, 0, 'final', 0)."  Additionally we use a
+# releaselevel of 'dev' for unreleased under-development code.
+#
+# If the releaselevel is 'alpha' then the major/minor/micro components are not
+# established at this point, and setup.py will use a version of next-$(revno).
+# If the releaselevel is 'final', then the tarball will be major.minor.micro.
+# Otherwise it is major.minor.micro~$(revno).
+
+try:
+    from ._version import __version__, version
+except ModuleNotFoundError:
+    # package is not installed
+    if v := __get_git_version():
+        version = v
+        # we're in a git repo
+        __version__ = tuple([int(x) if x.isdigit() else x for x in version.split(".")])
+    else:
+        # we're working with a tarball or similar
+        version = "0.0.0"
+        __version__ = (0, 0, 0)
 
 
 def test_suite():
@@ -100,7 +137,7 @@ def _kruskals_graph_MST(graph):
     edges = set()
     for from_node, to_nodes in graph.items():
         for to_node, value in to_nodes.items():
-            edge = (value,) + tuple(sorted([from_node, to_node]))
+            edge = (value, *tuple(sorted([from_node, to_node])))
             edges.add(edge)
     edges = list(edges)
     heapq.heapify(edges)
@@ -483,8 +520,6 @@ class OptimisingTestSuite(unittest.TestSuite):
 
 
 OptimisingTestSuite.known_suite_classes = (unittest.TestSuite, OptimisingTestSuite)
-if unittest2 is not None:
-    OptimisingTestSuite.known_suite_classes += (unittest2.TestSuite,)
 
 
 class TestLoader(unittest.TestLoader):
@@ -493,7 +528,7 @@ class TestLoader(unittest.TestLoader):
     suiteClass = OptimisingTestSuite
 
 
-class TestResourceManager(object):
+class TestResourceManager:
     """A manager for resources that can be shared across tests.
 
     ResourceManagers can report activity to a TestResult. The methods
@@ -761,7 +796,7 @@ class GenericResource(TestResourceManager):
             be embedded in the string returned by the id() method, to identify
             the generic resource. Defaults to '__name__'.
         """
-        super(GenericResource, self).__init__()
+        super().__init__()
         self.resource_factory = resource_factory
         self.setup_method_name = setup_method_name
         self.teardown_method_name = teardown_method_name
@@ -783,9 +818,8 @@ class GenericResource(TestResourceManager):
 
         :see: The `id_attribute_name` parameter.
         """
-        return "%s[%s]" % (
-            super(GenericResource, self).id(),
-            getattr(self.resource_factory, self.id_attribute_name),
+        return (
+            f"{super().id()}[{getattr(self.resource_factory, self.id_attribute_name)}]"
         )
 
 
@@ -815,7 +849,7 @@ class FixtureResource(TestResourceManager):
 
         :param fixture: The fixture to wrap.
         """
-        super(FixtureResource, self).__init__()
+        super().__init__()
         self.fixture = fixture
 
     def clean(self, resource):
@@ -830,7 +864,7 @@ class FixtureResource(TestResourceManager):
 
         The default is to call str(fixture) to get such information.
         """
-        return "%s[%s]" % (super(FixtureResource, self).id(), str(self.fixture))
+        return f"{super().id()}[{self.fixture!s}]"
 
     def _reset(self, resource, dependency_resources):
         self.fixture.reset()
@@ -860,7 +894,7 @@ class ResourcedTestCase(unittest.TestCase):
     resources = []
 
     def setUp(self):
-        super(ResourcedTestCase, self).setUp()
+        super().setUp()
         self.setUpResources()
 
     def setUpResources(self):
@@ -868,7 +902,7 @@ class ResourcedTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.tearDownResources()
-        super(ResourcedTestCase, self).tearDown()
+        super().tearDown()
 
     def tearDownResources(self):
         tearDownResources(self, self.resources, _get_result())
@@ -910,7 +944,7 @@ def neededResources(resources):
         dependencies = neededResources(
             [dependency for name, dependency in resource.resources]
         )
-        for resource in dependencies + [resource]:
+        for resource in [*dependencies, resource]:
             if resource in seen:
                 continue
             seen.add(resource)

@@ -28,7 +28,7 @@ class SampleTestResource(TestResourceManager):
         return "You need to implement your own getResource."
 
 
-class MyResource(object):
+class MyResource:
     """My pet resource."""
 
 

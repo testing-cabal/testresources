@@ -19,6 +19,7 @@
 """Test _resource_graph(resource_sets)."""
 
 import testtools
+
 import testresources
 from testresources import _resource_graph
 
