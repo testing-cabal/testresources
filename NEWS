@@ -2,11 +2,18 @@
 testresources release notes
 ---------------------------
 
-IN DEVELOPMENT
---------------
+2.1.0
+-----
+
+CHANGES
+~~~~~~~
+
+* Add support for Python 3.14, drop support for Python 3.9 (jelmer)
+
+* Remove references to unittest2 (stephenfin)
 
 2.0.2
-~~~~~
+-----
 
 CHANGES
 ~~~~~~~
@@ -19,9 +26,8 @@ CHANGES
 
 * Add support for Python >=3.10 (jelmer)
 
-
 2.0.1
-~~~~~
+-----
 
 CHANGES
 ~~~~~~~
@@ -39,7 +45,7 @@ CHANGES
   (Free Ekanayaka)
 
 2.0.0
-~~~~~
+-----
 
 CHANGES
 ~~~~~~~
@@ -48,11 +54,11 @@ CHANGES
   compatibility, we cannot easily test those in CI, so stating that they
   are supported is at best misleading. (Robert Collins)
 
+1.0.0
+-----
+
 IMPROVEMENTS
 ~~~~~~~~~~~~
-
-1.0.0
-~~~~~
 
 * Unitest2 test suites are properly absorbed and optimised now.
   (Robert Collins)
