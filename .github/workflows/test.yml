@@ -66,7 +66,7 @@ jobs:
 
       - name: Run tests
         run: |
-          python -W once -m testtools.run testresources.tests.test_suite
+          python -W once -m testtools.run tests.test_suite
 
   success:
     needs: ["lint", "test"]

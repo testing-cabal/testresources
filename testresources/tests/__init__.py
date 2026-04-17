@@ -13,27 +13,8 @@
 #  CONDITIONS OF ANY KIND, either express or implied.  See the license you chose
 #  for the specific language governing permissions and limitations under that
 #  license.
-#
 
 from unittest import TestResult
-
-from testresources.tests import TestUtil
-
-
-def test_suite():
-    import testresources.tests.test_optimising_test_suite
-    import testresources.tests.test_resource_graph
-    import testresources.tests.test_resourced_test_case
-    import testresources.tests.test_test_loader
-    import testresources.tests.test_test_resource
-
-    result = TestUtil.TestSuite()
-    result.addTest(testresources.tests.test_test_loader.test_suite())
-    result.addTest(testresources.tests.test_test_resource.test_suite())
-    result.addTest(testresources.tests.test_resourced_test_case.test_suite())
-    result.addTest(testresources.tests.test_resource_graph.test_suite())
-    result.addTest(testresources.tests.test_optimising_test_suite.test_suite())
-    return result
 
 
 class ResultWithoutResourceExtensions:

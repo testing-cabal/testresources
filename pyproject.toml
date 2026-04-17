@@ -80,4 +80,4 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"testresources/tests/*" = ["S"]
+"tests/*" = ["S"]

@@ -86,12 +86,6 @@ except ModuleNotFoundError:
         __version__ = (0, 0, 0)
 
 
-def test_suite():
-    import testresources.tests
-
-    return testresources.tests.test_suite()
-
-
 def _digraph_to_graph(digraph, prime_node_mapping):
     """Convert digraph to a graph.
 

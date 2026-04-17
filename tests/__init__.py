@@ -13,24 +13,22 @@
 #  CONDITIONS OF ANY KIND, either express or implied.  See the license you chose
 #  for the specific language governing permissions and limitations under that
 #  license.
-#
-
-import testtools
-
-from testresources import OptimisingTestSuite, TestLoader
-from testresources.tests import TestUtil
 
 
 def test_suite():
-    loader = TestUtil.TestLoader()
-    result = loader.loadTestsFromName(__name__)
+    from . import (
+        TestUtil,
+        test_optimising_test_suite,
+        test_resource_graph,
+        test_resourced_test_case,
+        test_test_loader,
+        test_test_resource,
+    )
+
+    result = TestUtil.TestSuite()
+    result.addTest(test_test_loader.test_suite())
+    result.addTest(test_test_resource.test_suite())
+    result.addTest(test_resourced_test_case.test_suite())
+    result.addTest(test_resource_graph.test_suite())
+    result.addTest(test_optimising_test_suite.test_suite())
     return result
-
-
-class TestTestLoader(testtools.TestCase):
-    def testSuiteType(self):
-        # The testresources TestLoader loads tests into an
-        # OptimisingTestSuite.
-        loader = TestLoader()
-        suite = loader.loadTestsFromName(__name__)
-        self.assertIsInstance(suite, OptimisingTestSuite)

@@ -26,7 +26,7 @@ from testresources.tests import ResultWithResourceExtensions
 
 
 def test_suite():
-    from testresources.tests import TestUtil
+    from . import TestUtil
 
     loader = TestUtil.TestLoader()
     result = loader.loadTestsFromName(__name__)
