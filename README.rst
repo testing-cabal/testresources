@@ -115,7 +115,9 @@ pointing to an allocated resource, which is the result of calling
 ``resource_manager.getResource()``.  ``finishedWith`` will be called on each
 resource during tearDown().
 
-For example::
+For example:
+
+.. code-block:: python
 
     class TestLog(testresources.ResourcedTestCase):
 
@@ -161,7 +163,9 @@ overriding these methods:
     whether ``TestResourceManager.dirtied`` has been called or any of the
     dependency resources are dirty.
 
-For instance::
+For instance:
+
+.. code-block:: python
 
     class TemporaryDirectoryResource(TestResourceManager):
 
@@ -179,7 +183,9 @@ For instance::
 
 The ``resources`` list on the TestResourceManager object is used to declare
 dependencies. For instance, a DataBaseResource that needs a TemporaryDirectory
-might be declared with a resources list::
+might be declared with a resources list:
+
+.. code-block:: python
 
     class DataBaseResource(TestResourceManager):
 
