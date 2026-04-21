@@ -2,6 +2,14 @@
 testresources release notes
 ---------------------------
 
+2.1.1
+-----
+
+CHANGES
+~~~~~~~
+
+* Fix packaging metadata (carlwgeorge, stephenfin)
+
 2.1.0
 -----
 
