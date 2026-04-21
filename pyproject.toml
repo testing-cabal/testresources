@@ -26,6 +26,11 @@ classifiers = [
 ]
 authors = [{name = "Robert Collins", email = "robertc@robertcollins.net"}]
 license = {text = "Apache-2.0 or BSD"}
+license-files = [
+    "COPYING",
+    "Apache-2.0",
+    "BSD",
+]
 requires-python = ">=3.10"
 dynamic = ["version"]
 
