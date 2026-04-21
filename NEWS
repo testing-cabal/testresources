@@ -2,6 +2,14 @@
 testresources release notes
 ---------------------------
 
+2.1.2
+-----
+
+CHANGES
+~~~~~~~
+
+* Fix packaging metadata (mgorny)
+
 2.1.1
 -----
 
